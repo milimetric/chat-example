@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Socket.IO chat</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial; }
@@ -16,8 +17,11 @@
   <body>
     <ul id="messages"></ul>
     <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
+        <input id="m" autocomplete="off" placeholder="type latitude <comma> longitude, example: 1,2" /><button>Send</button>
     </form>
+    <div id="map" style="height: 600px; width: auto;"></div>
+
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
@@ -28,8 +32,23 @@
         return false;
       });
       socket.on('chat message', function(msg){
-        $('#messages').append($('<li>').text(msg));
+        var latitude = 0;
+        var longitude = 0;
+        var d = msg.split(',');
+        if (d){
+            latitude = parseInt(d[0]);
+            longitude = parseInt(d[1]);
+        }
+        L.marker([latitude, longitude]).addTo(map);
       });
+
+      var map = L.map('map').setView([40, -74.50], 2);
+
+      // NOTE: Make sure to change the milimetric.j75ndn2d to your map id, see Leaflet Quickstart
+      L.tileLayer('http://{s}.tiles.mapbox.com/v3/milimetric.j75ndn2d/{z}/{x}/{y}.png', {
+          attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+          maxZoom: 18
+      }).addTo(map);
     </script>
   </body>
 </html>
